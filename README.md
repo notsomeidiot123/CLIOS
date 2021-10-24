@@ -1,1 +1,2 @@
 # CLIOS
+Command line interface and what i'd like to call an operating system but i don't know what it is. it will have a custom file system, it can connect to the internet, make web and other requests, create, write, save, and load files, it has users. will it work? i have no idea. does it have a use? of course not. but it will work like an os, which is good enough for me. please report security issues if you decide to look over the code, this is my first project doing stuff with networking, so i don't know anything about security. 
