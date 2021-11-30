@@ -66,7 +66,7 @@ using System.Diagnostics;
 			var netCon = new netConnect();
 			if (!File.Exists(savePath) && !File.Exists("backup.json"))
 			{
-				Console.Write("Welcome to CLIOS, a terrible program that mimics an operating system.\nTo get started, please create an account.\n Username: ");
+				Console.Write("Welcome to CLIOS, a terrible program that mimics an operating system.\nTo get started, please create an account.\n Username: ");//haha nice
 				string user = Console.ReadLine();
 				if (user == "")
 				{
@@ -125,7 +125,7 @@ using System.Diagnostics;
 				{
 					Console.Clear();
 					Thread.Sleep(100);
-					Console.Write("				 	CLIOS\n\n				 Made by Chris\n\n 0.2.1");
+					Console.Write("				 	CLIOS\n\n				 Made by Chris\n\n 0.2.3 alpha");
 					Thread.Sleep(100);
 					Console.Write("\n\n\n\ntype -h or help for help\n");
 					//Application.LoadApps();
@@ -417,7 +417,7 @@ using System.Diagnostics;
 							catch
 							{
 								Console.Write("Failed\n");
-							}
+							}//haha weed
 						}
 						else if (inpArr[0] == "download")
 						{
@@ -513,18 +513,27 @@ using System.Diagnostics;
 									supported = false;
 								}
 							}
-							if (inpArr[1].Contains(".txt"))
+							try
 							{
-								Console.Write(File.ReadAllText($"{data.username}/" + inpArr[1]) + "\n");
-							}
-							else
-							{
-								if (inpArr[1].Contains(".cli") || inpArr[1].Contains(".clid") && inpArr[2] == "-re")
+								Console.ForegroundColor = ConsoleColor.DarkBlue;
+								if (inpArr[1].Contains(".txt"))
 								{
-									Compiler.ClScript.Run($"{data.username}/{inpArr[1]}");
-									/*}else if(inpArr[1].Contains(".cli") || inpArr[1].Contains(".clid")){
-										Console.Write("505\n");*/
+									Console.Write(File.ReadAllText($"{data.username}/" + inpArr[1]) + "\n");
 								}
+								else
+								{
+									if (inpArr[1].Contains(".cli") || inpArr[1].Contains(".clid") && inpArr[2] == "-re")
+									{
+										Compiler.ClScript.Run($"{data.username}/{inpArr[1]}");
+										/*}else if(inpArr[1].Contains(".cli") || inpArr[1].Contains(".clid")){
+											Console.Write("505\n");*/
+									}
+								}
+								Console.ForegroundColor = ConsoleColor.DarkGreen;
+							}
+							catch
+							{
+								Console.Write("File does not exist\n");
 							}
 						}
 						else if (inpArr[0] == "read")
@@ -663,7 +672,7 @@ using System.Diagnostics;
 				answer = response.ToString();
 			}
 			return $"{answer}";
-		}
+		}//haha 666
 		public static string downloadTest(string file)
 		{
 			using (var Client = new WebClient())
@@ -767,7 +776,6 @@ using System.Diagnostics;
 					i++;
 					Console.Write($"\rLoading app {i} of {apps.Count}     ");
 					Thread.Sleep(100 * rand.Next(1, 10));
-
 				}
 				Console.Write("\n");
 				return "Loaded all apps\n";
@@ -828,7 +836,6 @@ using System.Diagnostics;
 					foreach (var line in splitArr)
 					{
 						string toPrint = "";
-						//bool containsVar = false;
 						if (line.Contains("var"))
 						{
 							char[] splitter = { ' ', '=' };
@@ -852,13 +859,14 @@ using System.Diagnostics;
 							else
 							{
 								int l = 0;
+								string dicAdd = "";
 								foreach(var seg in lineList){
 									l++;
-									Console.WriteLine($"{l} {seg}");
+									if(l > 2){
+										dicAdd += seg + " ";
+									}
 								}
-								Console.Write(splitLine[2]);
-								varDic.Add(splitLine[2], splitLine[3]);
-								Console.Write(varDic[splitLine[2]]);
+								varDic.Add(splitLine[2], dicAdd);
 							}
 						}
 						if (line.Contains("print"))
@@ -866,38 +874,31 @@ using System.Diagnostics;
 							string[] splitLine = line.Split("<<");
 							int j = 0;
 							string[] printable = splitLine[1].Split(" ");
+							for(int o = 0; o < splitLine.Length; o++){
+								splitLine[o] = splitLine[o].Replace(" ", "");
+							}
 							try
 							{
 								//Console.Write($"{splitLine[1]}, {splitLine[1].Length-1}, {splitLine[1].LastIndexOf("\"")}, {splitLine[1].IndexOf("\"")} ");
-								if (splitLine[1].Contains("\"") && splitLine[1].LastIndexOf("\"") == splitLine[1].Length - 1 && splitLine[1].IndexOf("\"") == 1 || splitLine[1].Contains("\"") && splitLine[1].LastIndexOf("\"") == splitLine[1].Length - 1 && splitLine[1].IndexOf("\"") == 0 || varDic.ContainsKey(splitArr[1]))
+								if (splitLine[1].Contains("\"") && splitLine[1].LastIndexOf("\"") == splitLine[1].Length - 1 && splitLine[1].IndexOf("\"") == 1 || splitLine[1].Contains("\"") && splitLine[1].LastIndexOf("\"") == splitLine[1].Length - 1 && splitLine[1].IndexOf("\"") == 0)
 								{
 									foreach (var str in printable)
 									{
-										j++;
 										if (j == 0)
 										{
-											if (varDic.ContainsKey(str))
-											{
-												toPrint += varDic[str];
-											}
-											else
-											{
-												toPrint += str.Replace("\"", "");
-											}
+											toPrint += str.Replace("\"", "");	
+											j++;
 										}
 										else
 										{
-											if (varDic.ContainsKey(str))
-											{
-												toPrint += " " + varDic[str];
-											}
-											else
-											{
-												toPrint += $" {str.Replace("\"", "")}";
-											}
+											toPrint += $" {str.Replace("\"", "")}";
 										}
 									}
 									Console.Write(toPrint.Replace("\"", "") + "\n");
+								}
+								else if(varDic.ContainsKey(splitLine[1]))
+								{
+									Console.Write(" "+varDic[splitLine[1]].Replace("\"", "")+"\n");
 								}
 							}
 							catch
