@@ -13,8 +13,6 @@ using Microsoft;
 using System.Net.Sockets;
 using System.Diagnostics;
 
-namespace CLIOS
-{
 	class Program
 	{
 		public static string[] pEx = {".h",
@@ -59,6 +57,7 @@ namespace CLIOS
 		};
 		public static void Main()
 		{//50
+			Console.ForegroundColor = ConsoleColor.DarkGreen;
 			netConnect.establishinfo();
 			Console.Clear();
 			string savePath = "startup.json";
@@ -126,19 +125,22 @@ namespace CLIOS
 				{
 					Console.Clear();
 					Thread.Sleep(100);
-					Console.Write("				 	CLIOS\n\n				 Made by Chris\n\n 1.8.5");
+					Console.Write("				 	CLIOS\n\n				 Made by Chris\n\n 0.2.1");
 					Thread.Sleep(100);
 					Console.Write("\n\n\n\ntype -h or help for help\n");
 					//Application.LoadApps();
 					while (true == true)
 					{
 						//get input and everything
+						
 						Console.Write("<$> ");
+						Console.ForegroundColor = ConsoleColor.White;
 						string inp = Input();
 						string[] inpArr = inp.Split(" ");
 						//scripting statement
 						if (inpArr[0] == "print" && inpArr.Length > 1)
 						{
+							Console.ForegroundColor =ConsoleColor.Green;
 							//concatenate the string together
 							string outp = "";
 							int i = 0;
@@ -163,6 +165,7 @@ namespace CLIOS
 						}
 						else if (inpArr[0] == "help" || inpArr[0] == "-h")
 						{
+							Console.ForegroundColor = ConsoleColor.DarkBlue;
 							Console.Write("()=not included in lite version. [] = not implemented as of now\nprint: write something to the command line\n -h get help\n");
 							Console.Write("dir: directories, but will only show those registered through the program that the user has access to. sorry evil maids, you can't find the password from here\n {folder}{file} view file contents\n");
 							Console.Write("()ping {ip}: dertermine the connection to a computer/server\n");
@@ -285,14 +288,6 @@ namespace CLIOS
 								}
 							}
 						}
-						else if (inpArr[0] == "save")
-						{
-							data.fileList = dir;
-							string saveinfo = JsonSerializer.Serialize<DataSave>(data);
-							File.WriteAllText(savePath, saveinfo);
-							Console.Write(Application.Update() + "\n");
-							Console.Write("Saved... it is now safe to quit\n");
-						}
 						else if (inpArr[0] == "create" || inpArr[0] == "new")
 						{
 							try
@@ -317,10 +312,13 @@ namespace CLIOS
 									foreach (var item in inpArr)
 									{
 										i++;
-										if (i > 3)
+										if (i > 3 && item != @"\n")
 										{
-											Console.Write($"\rWriting word {i - 3} of {inpArr.Length - 3}");
 											append += " " + item;//250
+										}
+										else if(item == @"\n")
+										{
+											append += "\n";
 										}
 									}
 									File.AppendAllText(path, append);
@@ -426,7 +424,7 @@ namespace CLIOS
 							try
 							{
 								Console.Write(netConnect.downloadTest(inpArr[1]));
-								Console.Write(Application.Update() + "\n");
+								//Console.Write(Application.Update() + "\n");
 							}
 							catch
 							{
@@ -552,10 +550,12 @@ namespace CLIOS
 							}
 						}
 						if(inpArr[0] == "user" || inpArr[0] == "-u")
-                        {
+            {
 							Console.Write($"{data.username}\n {data.password}\n");
-                        }
+            }
+					Console.ForegroundColor = ConsoleColor.DarkGreen;
 					}
+					
 				}
 				else
 				{
@@ -567,11 +567,13 @@ namespace CLIOS
 		//make input easier
 		public static string Input()
 		{
-			return Console.ReadLine();
+			string inp = Console.ReadLine();
+			Console.ForegroundColor = ConsoleColor.DarkGreen;
+			return inp;
 		}
 		//now obsolete
 		//load dictionaries and commands //400
-		public static async Task saveData(DataSave dataS)
+		public static void saveData(DataSave dataS)
 		{
 			string path = "backup.json";
 			string dataString = JsonSerializer.Serialize<DataSave>(dataS);
@@ -667,8 +669,6 @@ namespace CLIOS
 			using (var Client = new WebClient())
 			{
 				Client.DownloadFileAsync(new Uri($@"https://CLIOSserver.csharpisbetter.repl.co/{file}"), $@"{data.username}/{file}");
-				Application.Update();
-				File.WriteAllText("startup.json", JsonSerializer.Serialize<DataSave>(data));
 				return $"downloaded stock:[{file}] at CLIOSserver\n";
 			}
 		}
@@ -777,7 +777,7 @@ namespace CLIOS
 				return "";
 			}
 		}*/
-		public static string Update()
+		/*public static string Update()
 		{
 			data.appList = apps;
 			string saveinfo = JsonSerializer.Serialize<DataSave>(data);
@@ -788,7 +788,7 @@ namespace CLIOS
 				data.appList = new List<string>();
 			}
 			return "saved";
-		}
+		}*/
 	}//575
 	public class Compiler
 	{
@@ -815,7 +815,7 @@ namespace CLIOS
 			public static void Run(string file)
 			{
 				Dictionary<string, string> varDic = new Dictionary<string, string>();
-				int failed = 0;
+				//int failed = 0;
 				string error = "";
 				int i = 0;
 				List<string> rawText = File.ReadAllLines(file).ToList();
@@ -828,7 +828,39 @@ namespace CLIOS
 					foreach (var line in splitArr)
 					{
 						string toPrint = "";
-						bool containsVar = false;
+						//bool containsVar = false;
+						if (line.Contains("var"))
+						{
+							char[] splitter = { ' ', '=' };
+
+							string[] splitLine = line.Split(splitter);
+							List<string> lineList = new List<string>(splitLine);
+							int c = 0;
+							foreach (var word in splitLine)
+							{
+								if (word == "" || word == " ")
+								{
+									lineList.RemoveAt(c);
+									c--;
+								}
+								c++;
+							}
+							if (splitLine.Length == 2)
+							{
+								varDic.Add(splitLine[1], "");
+							}
+							else
+							{
+								int l = 0;
+								foreach(var seg in lineList){
+									l++;
+									Console.WriteLine($"{l} {seg}");
+								}
+								Console.Write(splitLine[2]);
+								varDic.Add(splitLine[2], splitLine[3]);
+								Console.Write(varDic[splitLine[2]]);
+							}
+						}
 						if (line.Contains("print"))
 						{
 							string[] splitLine = line.Split("<<");
@@ -873,32 +905,7 @@ namespace CLIOS
 								Console.Write($"Reference to uninitailized variable at: Line {i}\n");
 							}
 						}
-						if (line.Contains("var"))
-						{
-							char[] splitter = { ' ', '=' };
-
-							string[] splitLine = line.Split(splitter);
-							List<string> lineList = new List<string>(splitLine);
-							int c = 0;
-							foreach (var word in splitLine)
-							{
-								if (word == "" || word == " ")
-								{
-									lineList.RemoveAt(c);
-									c--;
-								}
-								c++;
-							}
-							if (splitLine.Length == 1)
-							{
-								varDic.Add(splitLine[1], "");
-							}
-							else
-							{
-								varDic.Add(splitLine[1], splitLine[2]);
-								Console.Write(varDic[splitLine[1]]);
-							}
-						}
+						
 						if (error != "")
 						{
 							Console.Write(error);
@@ -910,5 +917,3 @@ namespace CLIOS
 		}
 		//wjbfxmv
 	}
-
-}
