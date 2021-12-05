@@ -13,9 +13,10 @@ using Microsoft;
 using System.Net.Sockets;
 using System.Diagnostics;
 
-	class Program
+	class CLIOS
 	{
-		public static string[] pEx = {".h",
+		public static string[] pEx = {
+			".h",
 		 ".c",
 		 ".cpp",
 		 ".cs",
@@ -40,26 +41,60 @@ using System.Diagnostics;
 		 ".l",
 		 ".cl",
 		 ".fasl",
-		 ".exe"};
+		 };
 		public static string[] supEx = {
 			".cli",
 			".clid",
 			".txt",
-			".json"
+			".json",
+			".exe"
 		};
+		public static string rewrite = "using System; \nusing System.IO; \nusing System.Linq; \nusing System.Collections; \nusing System.Collections.Generic; \nusing System.Text; \nusing System.Text.Json; \nusing System.Text.Json.Serialization; \nclass Handler \n{ \npublic static void Main(string cmd, string[] args) \n{ \nif(cmd == \"debug\"){TestApp.Main(args);}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n}\n }";
 		//program extensions
 		public static Dictionary<string, Dictionary<string, List<string>>> dir = new Dictionary<string, Dictionary<string, List<string>>>();
+		public static List<string> appCmds = new List<string>();
+		public static List<string> stockCmds = new List<string>();
+		public static string[] stockCmdsInit = {
+			"download",
+			"upload",
+			"print",
+			"edit",
+			"new",
+			"run",
+			"read",
+			"dir",
+			"netDebug",
+			"delete",
+			"save",
+			"quit"
+			};
 		public static string[] errors = {
 			"CLIOS 0001, File does not exist",
 			"CLIOS 0002, Trouble parsing argument, try again",
 			"CLIOS 0003, Could not save",
 			"CLIOS 0004, Quit"
 		};
+		public static void initStockCmds()
+		{
+			int i = 0;
+			foreach(var item in stockCmdsInit)
+			{
+				i++;
+				stockCmds.Add(item);
+				Thread.Sleep(100);
+				Console.Write($"Loading Stock Command {item}, {i} of {stockCmdsInit.Length}                \r");
+			}
+			Console.Write("\n stock commands loaded\n");
+		}
 		public static void Main()
 		{//50
 			Console.ForegroundColor = ConsoleColor.DarkGreen;
-			netConnect.establishinfo();
+			initStockCmds();
+			Thread.Sleep(1000);
+			appCmds = AppHandler.Init().ToList();
+			Thread.Sleep(1000);
 			Console.Clear();
+			
 			string savePath = "startup.json";
 			//other variables
 			DataSave data = new DataSave();
@@ -78,10 +113,22 @@ using System.Diagnostics;
 				data.password = pass;
 				data.firstTimeStartup = false;
 				Directory.CreateDirectory(data.username);
+				Directory.CreateDirectory($@"{data.username}/CLIOS");
 				dir[data.username] = new Dictionary<string, List<string>>();
 				data.fileList = dir;
 				File.WriteAllText(savePath, JsonSerializer.Serialize<DataSave>(data));
-				Console.Write("Thanks! now initiating os... please run program again\n");
+				Console.Write("Would you like to download our stock Applications? (y/n)\n");
+				string stock = Console.ReadLine();
+				if(stock.Contains("y") && stock.Replace(" ", "").IndexOf("y") == 0)
+				{
+					Console.Write("Currently no Apps availible\n");
+					//Console.Write("Downloading stock Applications\n");
+				}
+				else
+				{
+					Console.Write("Okay!\n");
+				}
+				Console.Write("Thanks! now initiating os...\n");
 				saveData(data);
 				Main();
 			}
@@ -125,7 +172,7 @@ using System.Diagnostics;
 				{
 					Console.Clear();
 					Thread.Sleep(100);
-					Console.Write("				 	CLIOS\n\n				 Made by Chris\n\n 0.2.3 alpha");
+					Console.Write("				 	CLIOS\n\n				 Made by Chris\n\n 0.3.2 alpha\n\n This project can be found at: \ngithub.com/notsomeidiot123/CLIOS\n");
 					Thread.Sleep(100);
 					Console.Write("\n\n\n\ntype -h or help for help\n");
 					//Application.LoadApps();
@@ -172,7 +219,7 @@ using System.Diagnostics;
 							Console.Write("netDebug: development purposes, shows network and host information\n");
 							Console.Write("quit: quit the program, does not save and quit\n");
 							Console.Write("save: save program data\n");
-							Console.Write("run: run a file. non-stock programs and images do not work currently. \nread to read a program file\n");
+							Console.Write("run: run a file. images do not work \n use run to read txt files, use read to read program files\n");
 							Console.Write("create/new {path}: create a file\n");
 							Console.Write("edit {path}, {data}: edit file overwrites completely by default\n -k: combine file with data\n");
 							Console.Write("delete {path}: delete a file\n");
@@ -474,6 +521,7 @@ using System.Diagnostics;
 							try
 							{
 								File.Delete($"{data.username}/{inpArr[1]}");
+								Console.Write($"Deleted file {data.username}/{inpArr[1]}\n");
 							}
 							catch
 							{
@@ -562,6 +610,14 @@ using System.Diagnostics;
             {
 							Console.Write($"{data.username}\n {data.password}\n");
             }
+						else
+						{
+							if(inpArr[0] != "")
+							{
+								//debug AppHandler.Overwrite("hi");
+								Console.Write("Command not found; not implemented\n");
+							}
+						}
 					Console.ForegroundColor = ConsoleColor.DarkGreen;
 					}
 					
@@ -678,6 +734,10 @@ using System.Diagnostics;
 			using (var Client = new WebClient())
 			{
 				Client.DownloadFileAsync(new Uri($@"https://CLIOSserver.csharpisbetter.repl.co/{file}"), $@"{data.username}/{file}");
+				if(file.Contains(".cs"))
+				{
+					AppHandler.Overwrite(file);
+				}
 				return $"downloaded stock:[{file}] at CLIOSserver\n";
 			}
 		}
@@ -695,6 +755,9 @@ using System.Diagnostics;
 			using (var Client = new WebClient())
 			{
 				Client.DownloadFile($@"{url}/{file}", $@"{data.username}/{file}");
+				if(file.Contains(".cs")){
+					AppHandler.Overwrite(file);
+				}
 				return $"Downloaded {file} at {url}";
 			}
 		}
@@ -803,7 +866,7 @@ using System.Diagnostics;
 		public class Settings
 		{
 			public int Repeat { get; set; }
-			public bool Silent { get; set; }
+			public bool Silent { get; set; } //if silent, thread it, and return no input;
 			public bool Readable { get; set; }
 		}
 		public class ClScript
@@ -855,6 +918,9 @@ using System.Diagnostics;
 							if (splitLine.Length == 2)
 							{
 								varDic.Add(splitLine[1], "");
+							}
+							else if(splitLine[2] == "lnIn"){
+								Console.Write("505\n");
 							}
 							else
 							{
@@ -917,4 +983,74 @@ using System.Diagnostics;
 			}
 		}
 		//wjbfxmv
+	}
+	public class AppHandler
+	{
+		public class appInfo
+		{
+			public int appCount { get; set; }
+			public List<string> Apps { get; set; }
+		}
+		public List<string> cmds = new List<string>();
+		static string handlerFile = "Handler.cs";
+		static string debugFile = "root/debug.txt";
+		static string appsFile = "root/CLIOS/AppList.json";
+		static string debugTxt = "";
+		static string toReturn = "";
+		static appInfo appinfo = new appInfo();
+		public static string[] Init()
+		{
+			if(File.Exists(appsFile))
+			{
+				string[] appArr = {};
+				string apps = File.ReadAllText(appsFile);
+				appInfo info = JsonSerializer.Deserialize<appInfo>(apps);
+				try
+				{
+					int i = 0;
+					int j = 0;
+					foreach(var item in info.Apps)
+					{
+						i++;
+						appArr[j] = item;
+						Console.Write($"\r Loading app {i} of {info.Apps.Count}");
+						j++;
+					}
+					Console.Write("Apps Loaded\n");
+					return appArr;
+				}	
+				catch
+				{
+					return appArr;
+				}
+			}
+			else
+			{
+				Console.Write("initializing applist\n");
+				string[] newInitreturn = {};
+				appInfo info = new appInfo();
+				info.appCount = 15;
+				string data = JsonSerializer.Serialize<appInfo>(info);
+				File.WriteAllText(appsFile, data);
+				return newInitreturn;
+			}
+		}
+		static public string Overwrite(string file)
+		{
+			string className = file.Replace(".cs", "");
+			string commandName = file.Replace(".cs", "");
+			appInfo info = appinfo;
+			string[] lineArr = File.ReadAllLines(handlerFile);
+			//start indexing from 14, no more than 114;
+			lineArr[info.appCount-1] = $"		if(cmd == \"{commandName}\"){{{className}.Main(args);}}\n";
+			File.WriteAllLines(handlerFile, lineArr);
+			toReturn = "Debug";
+			return toReturn;
+		}
+
+		public static void debug()
+		{
+			debugTxt = toReturn;
+			File.AppendAllText(debugFile, debugTxt);
+		}
 	}
