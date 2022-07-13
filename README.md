@@ -3,7 +3,7 @@ Command line interface and what i'd like to call an operating system but i don't
 
 ## update, 8 months later
 
-I made this before I *really* got into low-level & OSDev. I can safely say while impressive, this entire thing is almost completely useless except for being used for those who are more used to a bash terminal, i guess. it does absolutely nothing outside of acting as a psuedo-shell. but somehow, with only about a month of experince in C & Asm, i have managed to not only start work on, but continually work on my own, fully fleged operating system. and holy crap is it so much more than i thought it was.
+I made this before I *really* got into low-level & OSDev. I can safely say while impressive, this entire thing is almost completely useless except for being used for those who are more used to a bash terminal, i guess. it does absolutely nothing outside of acting as a psuedo-shell. but somehow, with only about a month of experince in C & Asm, i have managed to not only start work on, but continually work on my own, fully fleged [operating system](https://github.com/notsomeidiot123/kiminoOS). and holy crap is it so much more than i thought it was.
 
 so please, to anyone who is thinking of writing an operating system, but doesnt know the work that goes into one, don't do what I did. I was a special case, and already had years of experince programming before i even *thought* about picking up C. And before this time, i tried doing it on codecademy 2 years ago and gave up because none of it made sense. 
 
